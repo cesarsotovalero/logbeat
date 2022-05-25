@@ -25,8 +25,8 @@ Additional thoughts of the tool:
 
 ## What do I need to implement
 
-- [ ] Code skeleton
-- [ ] Read configurations from a file
+- [X] Code skeleton
+- [X] Read configurations from a file
 - [ ] Sub-threads management (make sure to kill all the sub-threads when LogBeat stops)
 - [ ] Unit testing
 - [ ] CI using GitHub Action

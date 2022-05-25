@@ -53,8 +53,7 @@ def message_handler(logfile_format, message):
     match = message_pattern_re.search(message)
 
     if match == None:
-        logging.error("Incorrectly formated message detected.")
-        logging.error(message.encode("utf-8"))
+        logging.error("Incorrectly formated message detected: %s"%message.encode("utf-8"))
         return (None, None, message)
 
     session_id = int(match.group("session_id"))
@@ -76,7 +75,8 @@ def generate_error_report(filepath, message_queue):
         m = message_queue.pop()
         error_report += m.rstrip() + "\n"
     error_report += delimiter
-    print(error_report)
+
+    return error_report
 
 def file_monitor(filepath, logfile_format, handler, frequency,
             number_of_messages_included, handle_existing_lines):
@@ -94,7 +94,7 @@ def file_monitor(filepath, logfile_format, handler, frequency,
                         deques_for_sids[sid] = deque(maxlen=number_of_messages_included)
 
                     deques_for_sids[sid].appendleft(message)
-                    if if_error: generate_error_report(filepath, deques_for_sids[sid])
+                    if if_error: print(generate_error_report(filepath, deques_for_sids[sid]))
 
 def main(config):
     global MONITOR_THREADS

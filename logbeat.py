@@ -15,6 +15,7 @@ def handle_sigint(sig, frame):
     for thread in MONITOR_THREADS:
         if thread.is_alive():
             thread.terminate()
+    print("Thank you for trying LogBeat!")
     exit()
 
 def get_args():
@@ -113,19 +114,23 @@ def main(config):
             number_of_messages_included,
             handle_existing_lines)
     elif logfile_folder != "":
-        for entry in os.listdir(logfile_folder):
-            if os.path.isfile(os.path.join(logfile_folder, entry)):
-                filename, file_extension = os.path.splitext(entry)
-                if file_extension == ".log":
-                    monitor_thread = multiprocessing.Process(target=file_monitor,
-                        args=(os.path.join(logfile_folder, entry),
-                            logfile_format,
-                            message_handler,
-                            seconds_between_checks,
-                            number_of_messages_included,
-                            handle_existing_lines))
-                    MONITOR_THREADS.append(monitor_thread)
-                    monitor_thread.start()
+        monitored_files = list()
+        while True:
+            for entry in os.listdir(logfile_folder):
+                if os.path.isfile(os.path.join(logfile_folder, entry)):
+                    filename, file_extension = os.path.splitext(entry)
+                    if file_extension == ".log" and entry not in monitored_files:
+                        monitor_thread = multiprocessing.Process(target=file_monitor,
+                            args=(os.path.join(logfile_folder, entry),
+                                logfile_format,
+                                message_handler,
+                                seconds_between_checks,
+                                number_of_messages_included,
+                                handle_existing_lines))
+                        MONITOR_THREADS.append(monitor_thread)
+                        monitored_files.append(entry)
+                        monitor_thread.start()
+            time.sleep(seconds_between_checks)
         for thread in MONITOR_THREADS:
             thread.join()
 

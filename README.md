@@ -1,5 +1,7 @@
 # LogBeat
 
+[![Coverage Status](https://coveralls.io/repos/github/gluckzhang/logbeat/badge.svg?branch=main&t=tAgZYi)](https://coveralls.io/github/gluckzhang/logbeat?branch=main)
+
 Inspired by [FileBeat](https://www.elastic.co/beats/filebeat), I would like to use Python to implement a small tool that monitors log files for error messages.
 
 ## What does LogBeat do
@@ -29,5 +31,5 @@ Additional thoughts of the tool:
 - [X] Read configurations from a file
 - [X] Sub-threads management (make sure to kill all the sub-threads when LogBeat stops)
 - [ ] Unit testing
-- [ ] CI using GitHub Action
+- [X] CI using GitHub Action
 - [ ] Documentation

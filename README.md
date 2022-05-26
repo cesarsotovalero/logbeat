@@ -77,6 +77,6 @@ Considering that LogBeat does not have lots of dependencies to install, I have n
 - [X] Code skeleton
 - [X] Read configurations from a file
 - [X] Sub-threads management (make sure to kill all the sub-threads when LogBeat stops)
-- [ ] Unit testing and integration testing
+- [X] Unit testing and integration testing
 - [X] CI using GitHub Action
 - [X] Documentation and code comments

@@ -4,6 +4,40 @@
 
 Inspired by [FileBeat](https://www.elastic.co/beats/filebeat), I would like to use Python to implement a small tool that monitors log files for error messages.
 
+## Usage
+
+LogBeat is written in Python 3 and tested using Python 3.6-3.9. First of all, check the `logbeat.ini` file and modify the configurations based on your need. Here is an example of the `logbeat.ini`, with some explanations.
+
+```
+[LogFormat]
+# use python regula expressions for the following formats
+# keywords that are preserved: TIMESTAMP SESSION_ID MESSAGE_BODY
+# we assume that the format of timestamps is always correct in a log, thus we use a simplified version of regex to capture the timestamps
+message_format=TIMESTAMP SESSION_ID MESSAGE_BODY
+timestamp_format=(?P<timestamp>\d+-\d+-\d+ \d+:\d+:\d+)
+session_id_format=\[(?P<session_id>\d+)\]
+message_body_format=(?P<message_body>[\w\W]+$)
+
+[LogBeat]
+# the number of messages included in an error report (at most)
+number_of_messages_included=3
+# LogBeat checks the monitored log files at a certain frequency, seconds_between_checks defines the seconds between each check
+seconds_between_checks=1
+# defines whether LogBeat analyzes the existing lines of log messages when it is started
+handle_existing_lines=1
+# path to a log file
+logfile_path=./tests/app1.log
+# path to a log folder (only works if logfile_path is left empty)
+logfile_folder=./tests
+```
+
+Start up LogBeat using the following command, then log reports will be printed in the standard output.
+
+```
+python logbeat.py -c logbeat.ini
+```
+
+
 ## What does LogBeat do
 
 LogBeat monitors a folder after starting up. If there is any log (`.log`) files in the folder, LogBeat monitors them in different sub-threads. If a new log file is created in the folder after LogBeat is started, the new file should be monitored by LogBeat as well.

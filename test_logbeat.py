@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # Filename: test_logbeat.py
 
-import unittest, os, io, multiprocessing, time, logging
+import unittest, os, io, multiprocessing, time, logging, sys
 from unittest.mock import patch
 from collections import deque
 import logbeat
@@ -51,6 +51,24 @@ class TestLogBeatMethods(unittest.TestCase):
         report = logbeat.generate_error_report("", message_queue)
         self.assertEqual(report, expected_output)
 
+    @patch("sys.stderr", new_callable=io.StringIO)
+    def test_get_args(self, stderr):
+        testargs = ["logbeat.py"]
+        with patch.object(sys, 'argv', testargs), self.assertRaises(SystemExit) as cm:
+            config = logbeat.get_args()
+        self.assertEqual(cm.exception.code, 2)
+
+        testargs  = ["logbeat.py", "-c", "/dev/null"]
+        with patch.object(sys, 'argv', testargs), self.assertRaises(SystemExit) as cm:
+            config = logbeat.get_args()
+        self.assertEqual(cm.exception.code, 1)
+
+        testargs  = ["logbeat.py", "-c", "./tests/logbeat-invalid-config.ini"]
+        with patch.object(sys, 'argv', testargs), self.assertRaises(SystemExit) as cm:
+            config = logbeat.get_args()
+        self.assertEqual(cm.exception.code, 1)
+
+
 class IntegrationTest(unittest.TestCase):
 
     @patch("time.sleep", side_effect=InterruptedError)
@@ -78,6 +96,23 @@ class IntegrationTest(unittest.TestCase):
                 handle_existing_lines)
         except InterruptedError:
             pass
+
+        report = stdout.getvalue()
+        with open(expected_output_filepath, "rt") as expected:
+            expected_output = expected.read()
+            self.assertEqual(report, expected_output)
+
+    @patch("time.sleep", side_effect=InterruptedError)
+    @patch("sys.stdout", new_callable=io.StringIO)
+    def test_logbeat_main(self, stdout, mocked_sleep):
+        testargs  = ["logbeat.py", "-c", "./tests/logbeat-valid-config.ini"]
+        expected_output_filepath = "./tests/app1.report"
+        with patch.object(sys, 'argv', testargs):
+            config = logbeat.get_args()
+            try:
+                logbeat.main(config)
+            except InterruptedError:
+                pass
 
         report = stdout.getvalue()
         with open(expected_output_filepath, "rt") as expected:
